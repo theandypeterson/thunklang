@@ -7,103 +7,52 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `let five = 5;
-let ten = 10;
-
-let add = fn(x, y) {
-  x + y;
-};
-
-let result = add(five, ten);
-!-/*5;
-5 < 10 > 5;
-
-if (5 < 10) {
-  return true;
-} else {
-  return false;
-}
-
-10 == 10;
-10 != 9;
+	input := `foo = 4
+bar = foo + 3
+baz = () bar - 1
+blah = (x y) x * y
+x == y ? 1 : 0
 `
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
 	}{
-		{token.LET, "let"},
-		{token.IDENT, "five"},
+		{token.IDENT, "foo"},
 		{token.ASSIGN, "="},
-		{token.INT, "5"},
-		{token.SEMICOLON, ";"},
-		{token.LET, "let"},
-		{token.IDENT, "ten"},
+		{token.INT, "4"},
+		{token.NEWLINE, "\n"},
+		{token.IDENT, "bar"},
 		{token.ASSIGN, "="},
-		{token.INT, "10"},
-		{token.SEMICOLON, ";"},
-		{token.LET, "let"},
-		{token.IDENT, "add"},
-		{token.ASSIGN, "="},
-		{token.FUNCTION, "fn"},
-		{token.LPAREN, "("},
-		{token.IDENT, "x"},
-		{token.COMMA, ","},
-		{token.IDENT, "y"},
-		{token.RPAREN, ")"},
-		{token.LBRACE, "{"},
-		{token.IDENT, "x"},
+		{token.IDENT, "foo"},
 		{token.PLUS, "+"},
-		{token.IDENT, "y"},
-		{token.SEMICOLON, ";"},
-		{token.RBRACE, "}"},
-		{token.SEMICOLON, ";"},
-		{token.LET, "let"},
-		{token.IDENT, "result"},
+		{token.INT, "3"},
+		{token.NEWLINE, "\n"},
+		{token.IDENT, "baz"},
 		{token.ASSIGN, "="},
-		{token.IDENT, "add"},
 		{token.LPAREN, "("},
-		{token.IDENT, "five"},
-		{token.COMMA, ","},
-		{token.IDENT, "ten"},
 		{token.RPAREN, ")"},
-		{token.SEMICOLON, ";"},
-		{token.BANG, "!"},
+		{token.IDENT, "bar"},
 		{token.MINUS, "-"},
-		{token.SLASH, "/"},
-		{token.ASTERISK, "*"},
-		{token.INT, "5"},
-		{token.SEMICOLON, ";"},
-		{token.INT, "5"},
-		{token.LT, "<"},
-		{token.INT, "10"},
-		{token.GT, ">"},
-		{token.INT, "5"},
-		{token.SEMICOLON, ";"},
-		{token.IF, "if"},
+		{token.INT, "1"},
+		{token.NEWLINE, "\n"},
+		{token.IDENT, "blah"},
+		{token.ASSIGN, "="},
 		{token.LPAREN, "("},
-		{token.INT, "5"},
-		{token.LT, "<"},
-		{token.INT, "10"},
+		{token.IDENT, "x"},
+		{token.IDENT, "y"},
 		{token.RPAREN, ")"},
-		{token.LBRACE, "{"},
-		{token.RETURN, "return"},
-		{token.TRUE, "true"},
-		{token.SEMICOLON, ";"},
-		{token.RBRACE, "}"},
-		{token.ELSE, "else"},
-		{token.LBRACE, "{"},
-		{token.RETURN, "return"},
-		{token.FALSE, "false"},
-		{token.SEMICOLON, ";"},
-		{token.RBRACE, "}"},
-		{token.INT, "10"},
+		{token.IDENT, "x"},
+		{token.ASTERISK, "*"},
+		{token.IDENT, "y"},
+		{token.NEWLINE, "\n"},
+		{token.IDENT, "x"},
 		{token.EQ, "=="},
-		{token.INT, "10"},
-		{token.SEMICOLON, ";"},
-		{token.INT, "10"},
-		{token.NOT_EQ, "!="},
-		{token.INT, "9"},
-		{token.SEMICOLON, ";"},
+		{token.IDENT, "y"},
+		{token.QUESTION, "?"},
+		{token.INT, "1"},
+		{token.COLON, ":"},
+		{token.INT, "0"},
+		{token.NEWLINE, "\n"},
 		{token.EOF, ""},
 	}
 
