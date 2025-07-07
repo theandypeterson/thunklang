@@ -36,10 +36,9 @@ func (i *Identifier) expressionNode()      {}
 func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
 
 type AssignmentStatement struct {
-	Token token.Token
 	Name  *Identifier
 	Value Expression
 }
 
 func (ass *AssignmentStatement) statementNode()       {}
-func (ass *AssignmentStatement) TokenLiteral() string { return ass.Token.Literal }
+func (ass *AssignmentStatement) TokenLiteral() string { return "" }
