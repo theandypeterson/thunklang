@@ -11,6 +11,7 @@ import (
 const (
 	_ int = iota
 	LOWEST
+	CONDITIONAL
 	EQUALS
 	LESSGREATER
 	SUM
@@ -58,6 +59,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.NOT_EQ, p.parseInfixExpression)
 	p.registerInfix(token.LT, p.parseInfixExpression)
 	p.registerInfix(token.GT, p.parseInfixExpression)
+	p.registerInfix(token.QUESTION, p.parseIfExpression)
 
 	// set both cur and peek tokens
 	p.nextToken()
@@ -248,7 +250,29 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	return expression
 }
 
+func (p *Parser) parseIfExpression(left ast.Expression) ast.Expression {
+	expression := &ast.IfExpression{
+		Token:     p.curToken,
+		Condition: left,
+	}
+
+	p.nextToken()
+
+	expression.Consequence = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.COLON) {
+		return nil
+	}
+
+	p.nextToken()
+
+	expression.Alternative = p.parseExpression(LOWEST)
+
+	return expression
+}
+
 var precedences = map[token.TokenType]int{
+	token.QUESTION: CONDITIONAL,
 	token.EQ:       EQUALS,
 	token.NOT_EQ:   EQUALS,
 	token.LT:       LESSGREATER,
