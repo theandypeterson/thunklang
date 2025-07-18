@@ -421,7 +421,7 @@ func TestIfExpression(t *testing.T) {
 }
 
 func TestFunctionLiteralParsing(t *testing.T) {
-	input := `fn(x,y) x + y;`
+	input := `fn(x, y) x + y;`
 	l := lexer.New(input)
 	p := New(l)
 	program := p.ParseProgram()
@@ -445,7 +445,7 @@ func TestFunctionLiteralParsing(t *testing.T) {
 	}
 
 	testLiteralExpression(t, function.Parameters[0], "x")
-	testLiteralExpression(t, function.Parameters[0], "y")
+	testLiteralExpression(t, function.Parameters[1], "y")
 
 	testInfixExpression(t, function.Body, "x", "+", "y")
 }
