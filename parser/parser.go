@@ -127,7 +127,7 @@ func (p *Parser) parseAssignmentStatement() *ast.AssignmentStatement {
 		return nil
 	}
 
-	for !p.curTokenIs(token.NEWLINE) {
+	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 
@@ -139,8 +139,7 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 
 	stmt.Expression = p.parseExpression(LOWEST)
 
-	// TODO: unsure about this
-	if p.peekTokenIs(token.NEWLINE) {
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 

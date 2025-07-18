@@ -9,8 +9,9 @@ import (
 
 func TestAssignStatements(t *testing.T) {
 	// TODO: add a new line here and test for that being only 2 statements still
-	input := `foo = 4
-bar = 57
+	input := `
+foo = 4;
+bar = 5;
 `
 	l := lexer.New(input)
 	p := New(l)
@@ -80,7 +81,7 @@ func testAssignStatement(t *testing.T, s ast.Statement, name string) bool {
 }
 
 func TestIdentifierExpression(t *testing.T) {
-	input := "foobar"
+	input := "foobar;"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -283,7 +284,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"(((a + (b * c)) + (d / e)) - f)",
 		},
 		{
-			"3 + 4\n-5 * 5",
+			"3 + 4;-5 * 5",
 			"(3 + 4)((-5) * 5)",
 		},
 		{
@@ -386,7 +387,7 @@ func testInfixExpression(t *testing.T, exp ast.Expression, left interface{}, ope
 }
 
 func TestIfExpression(t *testing.T) {
-	input := "x < y ? x : y"
+	input := "x < y ? x : y;"
 
 	l := lexer.New(input)
 	p := New(l)

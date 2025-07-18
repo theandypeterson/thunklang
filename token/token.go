@@ -11,8 +11,9 @@ const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
 
-	IDENT = "IDENT"
-	INT   = "INT"
+	IDENT    = "IDENT"
+	INT      = "INT"
+	FUNCTION = "fn"
 
 	ASSIGN   = "="
 	PLUS     = "+"
@@ -25,8 +26,9 @@ const (
 	LT = "<"
 	GT = ">"
 
-	COMMA = ","
-	COLON = ":"
+	COMMA     = ","
+	COLON     = ":"
+	SEMICOLON = ";"
 
 	LPAREN = "("
 	RPAREN = ")"
@@ -35,11 +37,11 @@ const (
 
 	EQ     = "=="
 	NOT_EQ = "!="
-
-	NEWLINE = "\n"
 )
 
-var keywords = map[string]TokenType{}
+var keywords = map[string]TokenType{
+	"fn": FUNCTION,
+}
 
 func LookupIdent(ident string) TokenType {
 	if tok, ok := keywords[ident]; ok {

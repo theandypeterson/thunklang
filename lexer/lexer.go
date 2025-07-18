@@ -65,8 +65,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LT, l.ch)
 	case '>':
 		tok = newToken(token.GT, l.ch)
-	case '\n':
-		tok = newToken(token.NEWLINE, l.ch)
+	case ';':
+		tok = newToken(token.SEMICOLON, l.ch)
 	case '?':
 		tok = newToken(token.QUESTION, l.ch)
 	case ':':
@@ -109,7 +109,7 @@ func isLetter(ch byte) bool {
 }
 
 func (l *Lexer) skipWhitespace() {
-	for l.ch == ' ' || l.ch == '\t' || l.ch == '\r' {
+	for l.ch == ' ' || l.ch == '\t' || l.ch == '\r' || l.ch == '\n' {
 		l.readChar()
 	}
 }
