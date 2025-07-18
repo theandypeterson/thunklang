@@ -437,7 +437,7 @@ func TestFunctionLiteralParsing(t *testing.T) {
 	}
 	function, ok := stmt.Expression.(*ast.FunctionLiteral)
 	if !ok {
-		t.Fatalf("exp is not ast.IfExpression. got=%T", stmt.Expression)
+		t.Fatalf("exp is not ast.FunctionLiteral. got=%T", stmt.Expression)
 	}
 
 	if len(function.Parameters) != 2 {
@@ -448,4 +448,37 @@ func TestFunctionLiteralParsing(t *testing.T) {
 	testLiteralExpression(t, function.Parameters[1], "y")
 
 	testInfixExpression(t, function.Body, "x", "+", "y")
+}
+
+func TestCallExpressionParsing(t *testing.T) {
+	input := `add(1, 2 * 3, 4 + 5);`
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain %d statements. got=%d\n", 1, len(program.Statements))
+	}
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T",
+			program.Statements[0])
+	}
+	call, ok := stmt.Expression.(*ast.CallExpression)
+	if !ok {
+		t.Fatalf("exp is not ast.CallExpression. got=%T", stmt.Expression)
+	}
+
+	if !testIdentifier(t, call.Function, "add") {
+		return
+	}
+
+	if len(call.Arguments) != 3 {
+		t.Fatalf("function literal paramters wrong, expected 3, got=%d\n", len(call.Arguments))
+	}
+
+	testLiteralExpression(t, call.Arguments[0], 1)
+	testInfixExpression(t, call.Arguments[1], 2, "*", 3)
+	testInfixExpression(t, call.Arguments[2], 4, "+", 5)
 }
