@@ -7,40 +7,6 @@ import (
 	"testing"
 )
 
-func TestAssignStatements(t *testing.T) {
-	// TODO: add a new line here and test for that being only 2 statements still
-	input := `
-foo = 4;
-bar = 5;
-`
-	l := lexer.New(input)
-	p := New(l)
-
-	program := p.ParseProgram()
-	checkParserErrors(t, p)
-	if program == nil {
-		t.Fatalf("ParseProgram() returned nil")
-	}
-
-	if len(program.Statements) != 2 {
-		t.Fatalf("program does not contain 2 statements. got=%d", len(program.Statements))
-	}
-
-	tests := []struct {
-		expectedIdentifier string
-	}{
-		{"foo"},
-		{"bar"},
-	}
-
-	for i, tt := range tests {
-		stmt := program.Statements[i]
-		if !testAssignStatement(t, stmt, tt.expectedIdentifier) {
-			return
-		}
-	}
-}
-
 func checkParserErrors(t *testing.T, p *Parser) {
 	errors := p.Errors()
 	if len(errors) == 0 {
