@@ -15,6 +15,8 @@ func Eval(node ast.Node) object.Object {
 		return evalPrefixExpression(node.Operator, node.Right)
 	case *ast.InfixExpression:
 		return evalInfixExpression(node.Left, node.Operator, node.Right)
+	case *ast.IfExpression:
+		return evalIfExpression(node)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	}
@@ -130,4 +132,25 @@ func areInts(left object.Object, right object.Object) (*object.Integer, *object.
 		return left.(*object.Integer), right.(*object.Integer)
 	}
 	return nil, nil
+}
+
+func evalIfExpression(node *ast.IfExpression) object.Object {
+	condition := Eval(node.Condition)
+
+	if isTruthy(condition) {
+		return Eval(node.Consequence)
+	} else if node.Alternative != nil {
+		return Eval(node.Alternative)
+	} else {
+		return nil
+	}
+}
+
+func isTruthy(obj object.Object) bool {
+	switch obj.Type() {
+	case object.INTEGER_OBJ:
+		return obj.(*object.Integer).Value > 0
+	default:
+		return false
+	}
 }
