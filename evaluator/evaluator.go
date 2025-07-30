@@ -13,6 +13,8 @@ func Eval(node ast.Node) object.Object {
 		return Eval(node.Expression)
 	case *ast.PrefixExpression:
 		return evalPrefixExpression(node.Operator, node.Right)
+	case *ast.InfixExpression:
+		return evalInfixExpression(node.Left, node.Operator, node.Right)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	}
@@ -39,4 +41,93 @@ func evalPrefixExpression(operator string, right ast.Expression) object.Object {
 		}
 	}
 	return nil
+}
+
+func evalInfixExpression(left ast.Expression, operator string, right ast.Expression) object.Object {
+	leftVal := Eval(left)
+	rightVal := Eval(right)
+	switch operator {
+	case "-":
+		leftSide, rightSide := areInts(leftVal, rightVal)
+		if leftSide != nil {
+			return &object.Integer{Value: leftSide.Value - rightSide.Value}
+		}
+	case "+":
+		leftSide, rightSide := areInts(leftVal, rightVal)
+		if leftSide != nil {
+			return &object.Integer{Value: leftSide.Value + rightSide.Value}
+		}
+	case "*":
+		leftSide, rightSide := areInts(leftVal, rightVal)
+		if leftSide != nil {
+			return &object.Integer{Value: leftSide.Value * rightSide.Value}
+		}
+	case "/":
+		leftSide, rightSide := areInts(leftVal, rightVal)
+		if leftSide != nil {
+			return &object.Integer{Value: leftSide.Value / rightSide.Value}
+		}
+	case ">":
+		leftSide, rightSide := areInts(leftVal, rightVal)
+		if leftSide != nil {
+			val := int64(0)
+			if leftSide.Value > rightSide.Value {
+				val = 1
+			}
+			return &object.Integer{Value: val}
+		}
+	case ">=":
+		leftSide, rightSide := areInts(leftVal, rightVal)
+		if leftSide != nil {
+			val := int64(0)
+			if leftSide.Value >= rightSide.Value {
+				val = 1
+			}
+			return &object.Integer{Value: val}
+		}
+	case "<":
+		leftSide, rightSide := areInts(leftVal, rightVal)
+		if leftSide != nil {
+			val := int64(0)
+			if leftSide.Value < rightSide.Value {
+				val = 1
+			}
+			return &object.Integer{Value: val}
+		}
+	case "<=":
+		leftSide, rightSide := areInts(leftVal, rightVal)
+		if leftSide != nil {
+			val := int64(0)
+			if leftSide.Value <= rightSide.Value {
+				val = 1
+			}
+			return &object.Integer{Value: val}
+		}
+	case "==":
+		leftSide, rightSide := areInts(leftVal, rightVal)
+		if leftSide != nil {
+			val := int64(0)
+			if leftSide.Value == rightSide.Value {
+				val = 1
+			}
+			return &object.Integer{Value: val}
+		}
+	case "!=":
+		leftSide, rightSide := areInts(leftVal, rightVal)
+		if leftSide != nil {
+			val := int64(0)
+			if leftSide.Value != rightSide.Value {
+				val = 1
+			}
+			return &object.Integer{Value: val}
+		}
+	}
+	return nil
+}
+
+func areInts(left object.Object, right object.Object) (*object.Integer, *object.Integer) {
+	if left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ {
+		return left.(*object.Integer), right.(*object.Integer)
+	}
+	return nil, nil
 }
