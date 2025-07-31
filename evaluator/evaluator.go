@@ -5,18 +5,20 @@ import (
 	"interpreter/object"
 )
 
-func Eval(node ast.Node) object.Object {
+func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
-		return evalStatements(node.Statements)
+		return evalStatements(node.Statements, env)
 	case *ast.ExpressionStatement:
-		return Eval(node.Expression)
+		return Eval(node.Expression, env)
 	case *ast.PrefixExpression:
-		return evalPrefixExpression(node.Operator, node.Right)
+		return evalPrefixExpression(node.Operator, node.Right, env)
 	case *ast.InfixExpression:
-		return evalInfixExpression(node.Left, node.Operator, node.Right)
+		return evalInfixExpression(node.Left, node.Operator, node.Right, env)
 	case *ast.IfExpression:
-		return evalIfExpression(node)
+		return evalIfExpression(node, env)
+	case *ast.FunctionLiteral:
+		return evalFunctionExpression(node, env)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	}
@@ -24,17 +26,17 @@ func Eval(node ast.Node) object.Object {
 	return nil
 }
 
-func evalStatements(stmts []ast.Statement) object.Object {
+func evalStatements(stmts []ast.Statement, env *object.Environment) object.Object {
 	var result object.Object
 	for _, statement := range stmts {
-		result = Eval(statement)
+		result = Eval(statement, env)
 	}
 	return result
 }
 
 // return errororrrr
-func evalPrefixExpression(operator string, right ast.Expression) object.Object {
-	value := Eval(right)
+func evalPrefixExpression(operator string, right ast.Expression, env *object.Environment) object.Object {
+	value := Eval(right, env)
 	switch operator {
 	case "-":
 		if value.Type() == object.INTEGER_OBJ {
@@ -45,9 +47,9 @@ func evalPrefixExpression(operator string, right ast.Expression) object.Object {
 	return nil
 }
 
-func evalInfixExpression(left ast.Expression, operator string, right ast.Expression) object.Object {
-	leftVal := Eval(left)
-	rightVal := Eval(right)
+func evalInfixExpression(left ast.Expression, operator string, right ast.Expression, env *object.Environment) object.Object {
+	leftVal := Eval(left, env)
+	rightVal := Eval(right, env)
 	switch operator {
 	case "-":
 		leftSide, rightSide := areInts(leftVal, rightVal)
@@ -134,13 +136,13 @@ func areInts(left object.Object, right object.Object) (*object.Integer, *object.
 	return nil, nil
 }
 
-func evalIfExpression(node *ast.IfExpression) object.Object {
-	condition := Eval(node.Condition)
+func evalIfExpression(node *ast.IfExpression, env *object.Environment) object.Object {
+	condition := Eval(node.Condition, env)
 
 	if isTruthy(condition) {
-		return Eval(node.Consequence)
+		return Eval(node.Consequence, env)
 	} else if node.Alternative != nil {
-		return Eval(node.Alternative)
+		return Eval(node.Alternative, env)
 	} else {
 		return nil
 	}
@@ -153,4 +155,15 @@ func isTruthy(obj object.Object) bool {
 	default:
 		return false
 	}
+}
+
+func evalFunctionExpression(node *ast.FunctionLiteral, env *object.Environment) object.Object {
+	functionName := node.Name
+	function := &object.Function{Parameters: node.Parameters, Name: node.Name, Body: node.Body, Env: env}
+
+	if functionName != nil {
+		env.Set(functionName.Value, function)
+	}
+
+	return function
 }

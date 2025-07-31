@@ -202,6 +202,12 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 func (p *Parser) parseFunctionLiteral() ast.Expression {
 	lit := &ast.FunctionLiteral{Token: p.curToken}
 
+	if p.peekTokenIs(token.IDENT) {
+		p.nextToken()
+		identifier := p.parseIdentifier()
+		lit.Name = identifier.(*ast.Identifier)
+	}
+
 	if !p.expectPeek(token.LPAREN) {
 		return nil
 	}

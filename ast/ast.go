@@ -158,6 +158,7 @@ func (ie *IfExpression) String() string {
 
 type FunctionLiteral struct {
 	Token      token.Token
+	Name       *Identifier
 	Parameters []*Identifier
 	Body       Expression
 }
