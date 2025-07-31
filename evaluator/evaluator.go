@@ -19,6 +19,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIfExpression(node, env)
 	case *ast.FunctionLiteral:
 		return evalFunctionExpression(node, env)
+	case *ast.Identifier:
+		return evalIdentifier(node, env)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	}
@@ -166,4 +168,12 @@ func evalFunctionExpression(node *ast.FunctionLiteral, env *object.Environment) 
 	}
 
 	return function
+}
+
+func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object {
+	val, ok := env.Get(node.Value)
+	if !ok {
+		return nil
+	}
+	return val
 }
