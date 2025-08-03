@@ -41,6 +41,25 @@ func Start(in io.Reader, out io.Writer) {
 	}
 }
 
+func Run(in io.Reader, out io.Writer, text string) {
+	env := object.NewEnvironment()
+
+	l := lexer.New(text)
+	p := parser.New(l)
+
+	program := p.ParseProgram()
+	if len(p.Errors()) != 0 {
+		printParserErrors(out, p.Errors())
+	}
+
+	evaluated := evaluator.Eval(program, env)
+
+	if evaluated != nil {
+		io.WriteString(out, evaluated.Inspect())
+		io.WriteString(out, "\n")
+	}
+}
+
 func printParserErrors(out io.Writer, errors []string) {
 	for _, msg := range errors {
 		io.WriteString(out, "\t"+msg+"\n")

@@ -1,0 +1,3 @@
+fn fib(x) x < 2 ? 1 : fib(x - 1) + fib(x - 2)
+
+fib(33)

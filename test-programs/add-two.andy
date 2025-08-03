@@ -1,0 +1,4 @@
+fn addTwo (x) x + 2;
+fn addFour (x) addTwo(addTwo(x));
+
+addFour(3);
