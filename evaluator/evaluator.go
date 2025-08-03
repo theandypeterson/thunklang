@@ -21,6 +21,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalFunctionExpression(node, env)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
+	case *ast.CallExpression:
+		return evalCallExpression(node, env)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	}
@@ -176,4 +178,33 @@ func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object
 		return nil
 	}
 	return val
+}
+
+func evalCallExpression(node *ast.CallExpression, env *object.Environment) object.Object {
+	function := Eval(node.Function, env)
+	args := []object.Object{}
+	for _, arg := range node.Arguments {
+		args = append(args, Eval(arg, env))
+	}
+	return applyFunction(function, args)
+}
+
+func applyFunction(fn object.Object, args []object.Object) object.Object {
+	function, ok := fn.(*object.Function)
+	if !ok {
+		return nil
+	}
+
+	extendedEnv := extendFunctionEnv(function, args)
+	evaluated := Eval(function.Body, extendedEnv)
+	return evaluated
+}
+
+func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Environment {
+	env := object.NewEnclosedEnvironment(fn.Env)
+	for paramIdx, param := range fn.Parameters {
+		env.Set(param.Value, args[paramIdx])
+	}
+
+	return env
 }
