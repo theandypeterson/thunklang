@@ -3,6 +3,7 @@ package evaluator
 import (
 	"interpreter/ast"
 	"interpreter/object"
+	"strconv"
 )
 
 func Eval(node ast.Node, env *object.Environment) object.Object {
@@ -183,10 +184,22 @@ func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object
 func evalCallExpression(node *ast.CallExpression, env *object.Environment) object.Object {
 	function := Eval(node.Function, env)
 	args := []object.Object{}
+	argKey := ""
 	for _, arg := range node.Arguments {
+		argVal := Eval(arg, env)
 		args = append(args, Eval(arg, env))
+		argKey = argKey + strconv.FormatInt(argVal.(*object.Integer).Value, 10)
 	}
-	return applyFunction(function, args)
+	cacheKey := function.(*object.Function).Name.String() + argKey
+	cacheVal, ok := env.GetFnCache(cacheKey)
+
+	if ok {
+		return cacheVal
+	}
+
+	val := applyFunction(function, args)
+	env.SetFnCache(cacheKey, val)
+	return val
 }
 
 func applyFunction(fn object.Object, args []object.Object) object.Object {
