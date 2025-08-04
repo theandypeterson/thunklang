@@ -11,6 +11,7 @@ type ObjectType string
 
 const (
 	INTEGER_OBJ  = "INTEGER"
+	STRING_OBJ   = "STRING"
 	FUNCTION_OBJ = "FUNCTION"
 )
 
@@ -25,6 +26,13 @@ type Integer struct {
 
 func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
 func (i *Integer) Type() ObjectType { return INTEGER_OBJ }
+
+type String struct {
+	Value string
+}
+
+func (i *String) Inspect() string  { return fmt.Sprintf(i.Value) }
+func (i *String) Type() ObjectType { return STRING_OBJ }
 
 type Function struct {
 	Parameters []*ast.Identifier
