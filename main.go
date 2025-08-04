@@ -20,7 +20,15 @@ func main() {
 		fmt.Printf("Error reading file %s: %s\n", filename, err.Error())
 	}
 
-	repl.Run(os.Stdin, os.Stdout, string(dat))
+	evaluated, errors := repl.Run(string(dat))
+
+	if len(errors) > 0 {
+		printParserErrors(errors)
+	}
+
+	if evaluated != nil {
+		fmt.Println(evaluated.Inspect())
+	}
 }
 
 func setupRepl() {
@@ -32,4 +40,10 @@ func setupRepl() {
 	fmt.Printf("Feel free to type in commands\n")
 
 	repl.Start(os.Stdin, os.Stdout)
+}
+
+func printParserErrors(errors []string) {
+	for _, msg := range errors {
+		fmt.Println("\t" + msg + "\n")
+	}
 }
