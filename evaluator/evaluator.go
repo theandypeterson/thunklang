@@ -4,6 +4,7 @@ import (
 	"interpreter/ast"
 	"interpreter/object"
 	"strconv"
+	"strings"
 )
 
 func Eval(node ast.Node, env *object.Environment) object.Object {
@@ -188,23 +189,25 @@ func evalFunctionExpression(node *ast.FunctionLiteral, env *object.Environment) 
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object {
-	val, ok := env.Get(node.Value)
-	if !ok {
-		return nil
+	if val, ok := env.Get(node.Value); ok {
+		return val
 	}
-	return val
+
+	if builtin, ok := builtins[node.Value]; ok {
+		return builtin
+	}
+
+	// TODO ADD ERROR HERE
+	return nil
 }
 
 func evalCallExpression(node *ast.CallExpression, env *object.Environment) object.Object {
 	function := Eval(node.Function, env)
 	args := []object.Object{}
-	argKey := ""
 	for _, arg := range node.Arguments {
-		argVal := Eval(arg, env)
 		args = append(args, Eval(arg, env))
-		argKey = argKey + strconv.FormatInt(argVal.(*object.Integer).Value, 10)
 	}
-	cacheKey := function.(*object.Function).Name.String() + argKey
+	cacheKey := serializeArgs(args)
 	cacheVal, ok := env.GetFnCache(cacheKey)
 
 	if ok {
@@ -216,15 +219,34 @@ func evalCallExpression(node *ast.CallExpression, env *object.Environment) objec
 	return val
 }
 
+func serializeArgs(args []object.Object) string {
+	serialized := []string{}
+	for _, arg := range args {
+		switch arg.Type() {
+		case object.INTEGER_OBJ:
+			serialized = append(serialized, strconv.FormatInt(arg.(*object.Integer).Value, 10))
+		case object.STRING_OBJ:
+			serialized = append(serialized, arg.(*object.String).Value)
+		}
+
+	}
+	return strings.Join(serialized, ",")
+}
+
 func applyFunction(fn object.Object, args []object.Object) object.Object {
-	function, ok := fn.(*object.Function)
-	if !ok {
+	switch function := fn.(type) {
+	case *object.Function:
+		extendedEnv := extendFunctionEnv(function, args)
+		evaluated := Eval(function.Body, extendedEnv)
+		return evaluated
+	case *object.Builtin:
+		return function.Fn(args...)
+	default:
+		// TODO ADD ERROR HERE
+		// not a function
 		return nil
 	}
 
-	extendedEnv := extendFunctionEnv(function, args)
-	evaluated := Eval(function.Body, extendedEnv)
-	return evaluated
 }
 
 func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Environment {
