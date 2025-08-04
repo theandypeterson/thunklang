@@ -64,10 +64,15 @@ func evalInfixExpression(left ast.Expression, operator string, right ast.Express
 			return &object.Integer{Value: leftSide.Value - rightSide.Value}
 		}
 	case "+":
-		leftSide, rightSide := areInts(leftVal, rightVal)
-		if leftSide != nil {
+		switch leftVal.Type() {
+		case object.INTEGER_OBJ:
+			leftSide, rightSide := areInts(leftVal, rightVal)
 			return &object.Integer{Value: leftSide.Value + rightSide.Value}
+		case object.STRING_OBJ:
+			leftSide, rightSide := areStrings(leftVal, rightVal)
+			return &object.String{Value: leftSide.Value + rightSide.Value}
 		}
+
 	case "*":
 		leftSide, rightSide := areInts(leftVal, rightVal)
 		if leftSide != nil {
@@ -139,6 +144,13 @@ func evalInfixExpression(left ast.Expression, operator string, right ast.Express
 func areInts(left object.Object, right object.Object) (*object.Integer, *object.Integer) {
 	if left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ {
 		return left.(*object.Integer), right.(*object.Integer)
+	}
+	return nil, nil
+}
+
+func areStrings(left object.Object, right object.Object) (*object.String, *object.String) {
+	if left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ {
+		return left.(*object.String), right.(*object.String)
 	}
 	return nil, nil
 }
