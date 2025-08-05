@@ -20,6 +20,10 @@ func TestStrings(t *testing.T) {
 	testProgramString(t, "strings.andy", "this is a string!")
 }
 
+func TestCaching(t *testing.T) {
+	testProgramInt(t, "caching.andy", int64(2))
+}
+
 func testProgram(t *testing.T, filename string) object.Object {
 	dat, err := os.ReadFile(filename)
 	if err != nil {

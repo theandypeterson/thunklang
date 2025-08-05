@@ -207,7 +207,7 @@ func evalCallExpression(node *ast.CallExpression, env *object.Environment) objec
 	for _, arg := range node.Arguments {
 		args = append(args, Eval(arg, env))
 	}
-	cacheKey := serializeArgs(args)
+	cacheKey := function.(*object.Function).Name.Value + serializeArgs(args)
 	cacheVal, ok := env.GetFnCache(cacheKey)
 
 	if ok {

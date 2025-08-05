@@ -1,0 +1,5 @@
+fn first_func(x) x;
+fn second_func(x) x;
+
+first_func(4);
+second_func(2);
